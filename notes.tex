@@ -17,9 +17,10 @@
 
     \textbf{\Huge ECE 454 Course Notes} \\ [0.4em]
     \textbf{\Large Distributed Computing} \\ [1em]
-    \textbf{\Large Michael Socha} \\ [1em]
+    \textbf{\Large Parsa Torabian} \\ [1em]
+    \Large Forked from Michael Socha \\
     \textbf{\large University of Waterloo} \\
-    \textbf{\large Spring 2018} \\
+    \textbf{\large Spring 2019} \\
     \vspace*{\fill}
   \end{titlepage}
 
@@ -34,7 +35,7 @@
   \pagenumbering{arabic}
 
   \section{Course Overview}
-    This course is intended to provide an introduction into distributed systems. Topics covered include:
+    This course is intended to provide an introduction into distributed systems. \\ \\ Topics covered include:
     \begin{itemize}
       \item Some of the general architectures, protocols, and algorithms underlying modern distributed systems
       \item Techniques for making distributed systems scalable and dependable, as well as the relevant trade-offs
@@ -43,7 +44,16 @@
       \item Fault-tolerant coordination services for configuration management, synchronization, and failure-detection
         in distributed software systems
       \item Stream-processing engines for real-time analytics
-      \item Relative merits of distributed versus centralized systems
+      \item Relative merits of distributed versus centralized systems \\
+    \end{itemize}
+    Open-source software covered:
+    \begin{itemize}
+    \item Memcached (client-server paradigm)
+    \item Apache Thrift (Remote Procedure Calls)
+    \item Apache Hadoop (Big Data Processing)
+    \item Apache Spark (Big Data Processing)
+    \item Apache Zookeeper (Distributed Coordination)
+    \item Apache Kafka (Data Streaming)
     \end{itemize}
 
   \section{Introduction}
@@ -134,14 +144,13 @@
       \subsection{Types of Distributed Systems}
         \begin{itemize}
           \item \textbf{Web sites and Web services}
-          \item \textbf{High performance computing (HPC):} High-performance computing in distributed memory settings, where message communication is used instead of shared memory.
-          \item \textbf{Cluster Computing:} Distributing CPU or I/O intensive tasks over multiple servers.
-          \item \textbf{Cloud and Grid Computing:} Grid computing focuses on combining resources from different institutions, while cloud computing provides access to shared pools
-          of configurable system resources.
+          \item ?Difference from cluster computing? \textbf{High performance computing (HPC):} High-performance computing in distributed memory settings, where message communication is used instead of shared memory.
+          \item \textbf{Cluster Computing:} Distributing CPU or I/O intensive tasks over multiple servers. Eg: Hadoop
+          \item \textbf{Cloud and Grid Computing:} Grid computing focuses on combining resources from different institutions, while cloud computing provides access to shared pools of configurable system resources. Eg: IAAS, PAAS, SAAS
           \item \textbf{Transaction Processing:} Distributed transactions coordinated by transaction processing (TP) monitor.
-          \item \textbf{Enterprise Application Integration (EAI):} Middleware often used as communication facilitator in such systems.
+          \item \textbf{Enterprise Application Integration (EAI):} Middleware often used as communication facilitator in such systems. Eg: Client Apps to EAI Middleware to Enterprise Apps
           \item \textbf{Sensor Networks:} Each sensor in a network can process and store data, which can be queried by some operator. Sensors often rely on in-network data
-          processing to reduce communication costs.
+          processing to reduce communication costs. Eg: Irrigation
         \end{itemize}
 
   \section{Architectures}
@@ -162,7 +171,7 @@
         act as a client to the layer below and a server to the layer above.
 
         Vertical distribution describes the logical layers of a system being organized as separate physical tiers. Horizontal distribution describes a single logical
-        layer being split across multiple machines.
+        layer being split across multiple machines. ?How do these two types of distribution affect performance, scalability, and dependability?
 
       \subsubsection{Object-Based Architecture}
         Components are much more loosely organized than in a layered architecture, with components being able to interact freely with one another and no strict concept
@@ -175,6 +184,12 @@
         Components communicate by sharing events. Publish/subscribe systems can be used for sharing news, balancing workloads, asynchronous workflows, etc.\\
 
       In practice, many systems are hybrids of the architectures listed above.
+      
+      \subsubsection{P2P Systems}
+      Peer-to-peer systemms rely on horizontal distribution and are designed to deal with churn (machines joining and leaving). They organize processes in a overlay network that defines a set of communication channels. Eg: Chord is a P2P distributed has table (DHT) that uses a ring overlay? 
+      
+      \subsubsection{Hybrid Architectures}
+      BitTorrent combines client-server and P2P architectures. Client nodes obtain tracker information from a server and then exchange data with peer nodes.
 
     \subsection{Self-Management}
       Self-managing systems can be constructed using a feedback loop that monitors system behaviors and adjusts the system's internal operation.
@@ -195,7 +210,7 @@
       \end{itemize}
 
     \subsection{Context Switching During IPC}
-      Inter-process communication can be used to help coordinate processes. However, IPS can be costly, since it requires a context switch from user to
+      Inter-process communication can be used to help coordinate processes. However, IPC can be costly, since it requires a context switch from user to
       kernel space and back.
 
     \subsection{Threads}
@@ -208,7 +223,7 @@
       or operating system calls. The general layers of interaction (from more abstract to less) are applications, libraries, operating system, and hardware.
       These layers may interact with any layer below. Distributed systems often run in virtual environments that manage interactions with lower layers.
       A major benefit of such virtualization is improved portability. Virtual machine monitors can offer additional benefits, including server consolidation,
-      live migration of VMs to support load balancing and proactive maintenance, and VM replication.
+      live migration of VMs to support load balancing and proactive maintenance, and VM replication. ?Drawbacks of VMs?
 
     \subsection{Interfaces in Network Systems}
       Networked applications communicate by exchanging messages. The format of these messages is determined by a message-passing protocol.
@@ -294,11 +309,32 @@
     \subsection{Application Protocol Versioning}
       Thrift fields can be modified and remain compatible with old versions, provided that the rules below are followed:
       \begin{itemize}
-        \item Fields are associated with tag numbers, which should never the changed.
+        \item Fields are associated with tag numbers, which should never be changed.
         \item New fields must be optional and provide default values.
         \item Fields no longer needed can be removed, but their tag numbers cannot be reused.
       \end{itemize}
-
+	
+	\subsection{IDL Syntax}
+      \begin{itemize}
+        \item \textbf{Base Types:} bool, byte, i16, i32, i64, double, binary, string, void
+        \item \textbf{Containers:} list, set, map (of types from above)
+        \item \textbf{Other types:} const, typdef, enum, struct, exception
+        \item \textbf{Field modifiers:} required, optional, default
+        \item \textbf{Services and procedures:} service, extends, oneway
+        \item \textbf{namespace:} determines java package
+        \item \textbf{File inclusion:} Similar to C/C++ preprocessor
+      \end{itemize}	
+      
+      \subsection{Todo: Java Server implementations}
+      \begin{itemize}
+        \item \textbf{TSimpleServer:}  uses a single thread and blocking I/O
+        \item \textbf{TNonblockingServer:}  uses a single thread and non-blocking I/O. It can handle parallel connections but executes requests serially just like TSimpleServer
+        \item \textbf{THsHaServer:}  uses one thread for network I/O and a pool of worker threads. It can process multiple requests in parallel
+        \item \textbf{TThreadPoolServer:} uses one thread to accept connections and then handles each connection using a dedicated thread drawn from a pool of worker threads. 
+        \item \textbf{TThreadedSelectorServer:}  uses a pool of threads for network I/O and a pool of worker threads for request processing.
+        
+      \end{itemize}	
+	
     \subsection{Some Programming Tips}
       \begin{itemize}
         \item To separate policy from mechanism, it is generally a bad idea to hardcode hostnames and port numbers; it is usually preferable to accept command line
@@ -308,6 +344,7 @@
         \item By default Thrift transports, protocols and client stubs are not thread safe; different threads should share these items carefully, or not share them
         at all.
       \end{itemize}
+      
 
   \section{Distributed File Systems}
 
@@ -413,7 +450,7 @@
         Index inversion produces a mapping of terms to document ids. Mappers emit (term, id) tuples, while reducers combine these tuples to generate lists of ids
         for each term.
 
-      \subsubsection{Cross-Correlation}
+      \subsubsection{?Cross-Correlation}
         Cross-correlation problems provide as input a set of tuples of items, and for each possible pair of items, the number of items where the tuples co-occur is
         measured. If $N$ items are provided, then $N^2$ values should be reported. This problem can be represented through a matrix if $N^2$ is small enough.
         For larger values of $N^2$, MapReduce can be effective.
@@ -441,6 +478,9 @@
         The transformations in the DAG are grouped into stages. A single stage is a collection of transformations with narrow dependencies, meaning that one partition of
         the output depends only on a single partition of the input (e.g. map, filter). The boundaries between stages feature wide dependencies, meaning that a single
         partition of output may correspond to multiple partitions of input (e.g. group by key), so the transformations may require a shuffle.
+        
+        \subsubsection{Pagerank}
+        ???
 
     \subsection{Spark vs Hadoop MapReduce}
       Two common differences between Spark and MapReduce are:
@@ -739,6 +779,9 @@
             of incoming messages, forms a checkpoint, and returns an acknowledgment (ACK) to the coordinator.
           \item Once all ACKs are received by the coordinator, it sends a message to the participants that they can resume processing incoming messages.
         \end{enumerate}
+
+  \section{RAFT}
+
 
   \section{Apache Kafka}
     Apache Kafka is an open-source distributed stream-processing platform. A few key features of Kafka are publish-subscribe message oriented communication,
